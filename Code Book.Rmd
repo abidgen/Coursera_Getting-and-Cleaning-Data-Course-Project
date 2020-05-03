@@ -1,0 +1,69 @@
+---
+title: "Code Book"
+author: "Abid Al Reza"
+date: "5/2/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+The `run_analysis.R` script perform data cleanup using the following five steps:  
+
+## 1. Joining raw data to create one complete data set
+a) Raw data downloaded and unzipped. All the files are in `UCI HAR Dataset` folder.
+b) Assigning each data into variables.
+    i. `activity_labels<- activity_labels.txt` : 6 rows and 1 column.  
+Contains the list of activites that were performed when the corrospoding measures were recorded.
+
+    j. `feature<- features.txt1` :561 rows and 2 columns.  
+Contains the list of variables measured. They come from the accelerometer and gyroscope 3-axial raw signals in the X, Y and Z directions.
+
+    k. `subject_test<- subject_test.txt` :2947 rows and 1 column.  
+Contains list of subject identifiers for voluteers who were selected to generate test data set. They comprise 30% of the total number of volunteers. 
+
+    l. `x_test<- X_test.txt` :2947 rows and 561 columns.  
+Cotains measurement values of feature variables for each activity by each test voluteer.
+
+    m. `y_test<- y_test.txt`:2947 rows and 2 column.  
+Contains list of code lebels representing the activity performed for each corrosponding row in the `x_test` data set.
+
+    n. `subject_train <- subject_train.txt` :7352 rows and 2 columns.  
+Contains list of subject identifiers for voluteers who were selected to generate trianing data set. They comprise 70% of the total number of volunteers.
+
+    o. `x_train<- X_train.txt` :7352 rows and 561 columns.  
+Cotains measurement values of feature variables for each activity by each training voluteer.
+
+    p. `y_train<- y_train.txt` :7352 rows and 1 column.  
+Contains list of code lebels representing the activity performed for each corrosponding row in the `x_train` data set.
+
+c) Joining data sets to create a complete data set
+    i. In `features`, there are multiple `feature_name` rows that are exactly same. So, They were concatenated with corrosponding number from `n` column to create unique `feature_labels`.  
+    j. `x_train` and `x_test` datsets were combined using `rbind()` to create `activity_measurement` data set. `feature$feature_labels` were used as the column names of this data set.
+    k. `subject_train` and `subject_test` were joined to using `rbind()` to created `subject_identifier` datase.
+    l. `y_train` and `y_test` data sets were joined using `rbind()` to create `activity_identifier` data set. The column name was rest to "code".
+    m. `subject_identifier`,`activity_identifier` and `activity_measurement` data sets were combined using `cbind()` to create `complete_dataset`. 
+
+## 2. Extraction of  only the measurements on the mean and standard deviation for each measurement
+From `complete_dataset`, columns with column names `subject`,`code` and columns containing "mean" and "std" character string in thier column name were selected. The selected data set was assigned in `filtered_data`.
+
+## 3. Use of descriptive activity names to name the activities in the data set
+The activity identifier values in `code` column of `filtered_data` were replaced with respective activity description. The column name was replaced to "activity" and the rows were arranged in acscending order first by `subject` and then by `activity`.
+
+## 4. labeling the data set with appropriate and descriptive variable names.
+a) All `T`  in column names positioned just after the number and underscore sign were replaced with `time`.
+b) All `F` in column names positioned just after the number and underscore sign were replaced with `frequency`.
+c) All `Acc` in column names were replaced with `Accelerometer`.
+d) All `Mag` in column names were replaced with `Magnitude`.
+e) All `BodyBody` in column names were replaced with `Body`.
+f) All `std()` in column names were replaced with `STD`.
+g) All `mean()` in column names were replaced with `Mean`.
+h) All `meanFreq()` in column names were replaced with `MeanFrequrncy`.   
+
+`tidy_data` was exported into `tidy_data.txt` file.
+
+## 5. Independent tidy data set with the average of each variable for each activity and each subject
+`tidy_data` was grouped by `subject` and `activity`. Then `summarise_all()` function was used to calculate means of each variable for each activity by each subject. The new  calculated data set was assigned in `final_data`. 
+
+Finally, `filtered_data` was exported into `final_data.txt` file. 
